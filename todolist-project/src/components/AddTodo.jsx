@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import "./AddTodo.css";
 
 export default function AddTodo() {
@@ -17,21 +16,28 @@ export default function AddTodo() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post("https://dummyjson.com/posts/add", {
-        title: todo.name,     
-        body: todo.content,
-        userId: 1,            
-      });
 
-      console.log("투두리스트 등록 성공!", response.data);
-      alert("투두리스트 등록 완료!");
-    } catch (error) {
-      console.error("투두리스트 등록 실패", error);
-      alert("투두리스트 등록 실패!");
-    }
+    const newTodo = {
+      id: Date.now(), 
+      name: todo.name,
+      writer: todo.writer,
+      content: todo.content,
+      createdTime: new Date().toISOString(),
+    };
+
+
+    const storedTodos = JSON.parse(localStorage.getItem("todos")) || [];
+
+
+    const updatedTodos = [...storedTodos, newTodo];
+
+
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
+
+    alert("투두 등록 완료!");
+    setTodo({ name: "", writer: "", content: "" });
   };
 
   return (
