@@ -1,12 +1,28 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import "./TodoList.css";
 
 export default function TodoList() {
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    const storedTodos = JSON.parse(localStorage.getItem("todos")) || [];
-    setTodos(storedTodos.reverse()); // 최신 등록 순으로 정렬
+    const fetchTodos = async () => {
+      try {
+        const getUrl = import.meta.env.VITE_GET_URL;
+        const res = await axios.get(`${getUrl}/todos`);
+
+        const records = res.data.records;
+        if (Array.isArray(records)) {
+          setTodos(records.reverse());
+        } else {
+          console.warn("예상한 records 배열이 없습니다:", res.data);
+        }
+      } catch (error) {
+        console.error("투두 불러오기 실패", error);
+      }
+    };
+
+    fetchTodos();
   }, []);
 
   return (
@@ -18,13 +34,13 @@ export default function TodoList() {
         todos.map((todo) => (
           <div key={todo.id} className="todos">
             <p>
-              <strong>제목:</strong> {todo.name}
+              <strong>제목:</strong> {todo.fields?.name || "-"}
             </p>
             <p>
-              <strong>작성자:</strong> {todo.writer}
+              <strong>작성자:</strong> {todo.fields?.writer || "-"}
             </p>
             <p>
-              <strong>내용:</strong> {todo.content}
+              <strong>내용:</strong> {todo.fields?.content || "-"}
             </p>
             <p>
               <strong>작성일:</strong>{" "}
